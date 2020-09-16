@@ -20,7 +20,7 @@ flags
 #----------------------------------------------
 */
 
-params.FLAG = false
+params.createSequenceDictionary = false
 
 /*
 #----------------------------------------------
@@ -28,7 +28,7 @@ directories
 #----------------------------------------------
 */
 
-params.resultsDir = 'results/FIXME'
+params.resultsDir = 'results/picard/createSequenceDictionary'
 
 
 /*
@@ -57,32 +57,34 @@ channels
 Channel.value("$workflow.launchDir/$params.refFasta")
         .set { ch_refFasta }
 
-Channel.fromFilePairs(params.filePattern)
-        .set { ch_in_PROCESS }
+Channel.fromFilePairs(params.readsFilePattern)
+        .set { ch_in_picard }
 
 /*
 #==============================================
-PROCESS
+picard
 #==============================================
 */
 
-process PROCESS {
+process picardCreateSequenceDictionary {
     publishDir params.resultsDir, mode: params.saveMode
-    container 'FIXME'
+    container "quay.io/biocontainers/picard:2.23.4--0"
 
+    when:
+    params.createSequenceDictionary
 
     input:
-    set genomeFileName, file(genomeReads) from ch_in_PROCESS
+    path refFasta from ch_refFasta
 
     output:
-    path FIXME into ch_out_PROCESS
+    file "*.dict" into ch_out_picardCreateSequenceDictionary
 
 
     script:
-    genomeName = genomeFileName.toString().split("\\_")[0]
+    refFastaName = refFasta.toString().split("\\.")[0]
 
     """
-    CLI PROCESS
+    picard CreateSequenceDictionary REFERENCE=${refFasta}  OUTPUT=${refFastaName}.dict
     """
 }
 
