@@ -21,7 +21,8 @@ flags
 */
 
 params.createSequenceDictionary = false
-
+params.collectAlignmentSummaryMetrics = false
+params.collectInsertSizeMetrics = false
 /*
 #----------------------------------------------
 directories
