@@ -94,7 +94,7 @@ process createSequenceDictionary {
 }
 
 
-        * /
+/*
 #==============================================
 CollectAlignmentSummaryMetrics
 #==============================================
@@ -123,7 +123,7 @@ process CollectAlignmentSummaryMetrics {
     """
 }
 
-        * /
+/*
 #==============================================
 CollectInsertSizeMetrics
 #==============================================
