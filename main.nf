@@ -67,11 +67,11 @@ Channel.fromPath("$gatkMarkDuplicatesSparkResultsDir/*bam")
 
 /*
 #==============================================
-picard
+CreateSequenceDictionary
 #==============================================
 */
 
-process createSequenceDictionary {
+process CreateSequenceDictionary {
     publishDir params.createSequenceDictionaryResultsDir, mode: params.saveMode
     container "quay.io/biocontainers/picard:2.23.4--0"
 
