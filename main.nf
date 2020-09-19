@@ -60,7 +60,7 @@ channels
 Channel.value("$workflow.launchDir/$params.refFasta")
         .set { ch_refFasta }
 
-Channel.fromPath("$gatkMarkDuplicatesSparkResultsDir/*bam")
+Channel.fromPath("$params.gatkMarkDuplicatesSparkResultsDir/*bam")
         .into {
             ch_in_collectAlignmentSummaryMetrics;
             ch_in_collectInsertSizeMetrics
