@@ -60,7 +60,10 @@ Channel.value("$workflow.launchDir/$params.refFasta")
         .set { ch_refFasta }
 
 Channel.fromPath("$gatkMarkDuplicatesSparkResultsDir/*bam")
-        .set { ch_in_collectAlignmentSummaryMetrics }
+        .into {
+            ch_in_collectAlignmentSummaryMetrics;
+            ch_in_collectInsertSizeMetrics
+        }
 
 /*
 #==============================================
@@ -91,8 +94,7 @@ process createSequenceDictionary {
 }
 
 
-
-*/
+        * /
 #==============================================
 CollectAlignmentSummaryMetrics
 #==============================================
@@ -121,7 +123,7 @@ process CollectAlignmentSummaryMetrics {
     """
 }
 
-*/
+        * /
 #==============================================
 CollectInsertSizeMetrics
 #==============================================
@@ -148,8 +150,6 @@ process CollectInsertSizeMetrics {
     picard CollectInsertSizeMetrics INPUT=${dedupedSortedBamFile}  OUTPUT=${refFastaName}_insert_metrics.txt HISTOGRAM_FILE=${dedupedSortedBamFile}_insert_size_histogram.pdf
     """
 }
-
-
 
 
 /*
