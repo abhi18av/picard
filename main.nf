@@ -30,9 +30,9 @@ directories
 
 params.gatkMarkDuplicatesSparkResultsDir = 'results/gatk/markDuplicatesSpark'
 
-params.createSequenceDictionary = 'results/picard/createSequenceDictionary'
-params.collectAlignmentSummaryMetrics = 'results/picard/collectAlignmentSummaryMetrics'
-
+params.createSequenceDictionaryResultsDir = 'results/picard/createSequenceDictionary'
+params.collectAlignmentSummaryMetricsResultsDir = 'results/picard/collectAlignmentSummaryMetrics'
+params.collectInsertSizeMetricsResultsDir =  'results/picard/collectInsertSizeMetrics'
 /*
 #----------------------------------------------
 file patterns
@@ -72,7 +72,7 @@ picard
 */
 
 process createSequenceDictionary {
-    publishDir params.resultsDir, mode: params.saveMode
+    publishDir params.createSequenceDictionaryResultsDir, mode: params.saveMode
     container "quay.io/biocontainers/picard:2.23.4--0"
 
     when:
@@ -101,7 +101,7 @@ CollectAlignmentSummaryMetrics
 */
 
 process CollectAlignmentSummaryMetrics {
-    publishDir params.resultsDir, mode: params.saveMode
+    publishDir params.collectAlignmentSummaryMetricsResultsDir, mode: params.saveMode
     container "quay.io/biocontainers/picard:2.23.4--0"
 
     when:
@@ -130,7 +130,7 @@ CollectInsertSizeMetrics
 */
 
 process CollectInsertSizeMetrics {
-    publishDir params.resultsDir, mode: params.saveMode
+    publishDir params.collectInsertSizeMetricsResultsDir, mode: params.saveMode
     container "quay.io/biocontainers/picard:2.23.4--0"
 
     when:
