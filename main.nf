@@ -21,16 +21,19 @@ flags
 */
 
 params.createSequenceDictionary = false
-
+params.collectAlignmentSummaryMetrics = false
+params.collectInsertSizeMetrics = false
 /*
 #----------------------------------------------
 directories
 #----------------------------------------------
 */
 
-params.resultsDir = 'results/picard/createSequenceDictionary'
+params.gatkMarkDuplicatesSparkResultsDir = 'results/gatk/markDuplicatesSpark'
 
-
+params.createSequenceDictionaryResultsDir = 'results/picard/createSequenceDictionary'
+params.collectAlignmentSummaryMetricsResultsDir = 'results/picard/collectAlignmentSummaryMetrics'
+params.collectInsertSizeMetricsResultsDir =  'results/picard/collectInsertSizeMetrics'
 /*
 #----------------------------------------------
 file patterns
@@ -57,17 +60,20 @@ channels
 Channel.value("$workflow.launchDir/$params.refFasta")
         .set { ch_refFasta }
 
-Channel.fromFilePairs(params.readsFilePattern)
-        .set { ch_in_picard }
+Channel.fromPath("$params.gatkMarkDuplicatesSparkResultsDir/*bam")
+        .into {
+            ch_in_collectAlignmentSummaryMetrics;
+            ch_in_collectInsertSizeMetrics
+        }
 
 /*
 #==============================================
-picard
+CreateSequenceDictionary
 #==============================================
 */
 
-process picardCreateSequenceDictionary {
-    publishDir params.resultsDir, mode: params.saveMode
+process CreateSequenceDictionary {
+    publishDir params.createSequenceDictionaryResultsDir, mode: params.saveMode
     container "quay.io/biocontainers/picard:2.23.4--0"
 
     when:
@@ -77,7 +83,7 @@ process picardCreateSequenceDictionary {
     path refFasta from ch_refFasta
 
     output:
-    file "*.dict" into ch_out_picardCreateSequenceDictionary
+    file "*.dict" into ch_out_createSequenceDictionary
 
 
     script:
@@ -85,6 +91,64 @@ process picardCreateSequenceDictionary {
 
     """
     picard CreateSequenceDictionary REFERENCE=${refFasta}  OUTPUT=${refFastaName}.dict
+    """
+}
+
+
+/*
+#==============================================
+CollectAlignmentSummaryMetrics
+#==============================================
+*/
+
+process CollectAlignmentSummaryMetrics {
+    publishDir params.collectAlignmentSummaryMetricsResultsDir, mode: params.saveMode
+    container "quay.io/biocontainers/picard:2.23.4--0"
+
+    when:
+    params.collectAlignmentSummaryMetrics
+
+    input:
+    path refFasta from ch_refFasta
+    file(dedupedSortedBamFile) from ch_in_collectAlignmentSummaryMetrics
+
+    output:
+    file "*.txt" into ch_out_collectAlignmentSummaryMetrics
+
+
+    script:
+    refFastaName = refFasta.toString().split("\\.")[0]
+
+    """
+    picard CollectAlignmentSummaryMetrics R=${refFasta} I=${dedupedSortedBamFile}  O=${refFastaName}_alignment_metrics.txt
+    """
+}
+
+/*
+#==============================================
+CollectInsertSizeMetrics
+#==============================================
+*/
+
+process CollectInsertSizeMetrics {
+    publishDir params.collectInsertSizeMetricsResultsDir, mode: params.saveMode
+    container "quay.io/biocontainers/picard:2.23.4--0"
+
+    when:
+    params.collectInsertSizeMetrics
+
+    input:
+    file(dedupedSortedBamFile) from ch_in_collectInsertSizeMetrics
+
+    output:
+    tuple file("*.txt"),
+            file("*pdf") into ch_out_collectInsertSizeMetrics
+
+
+    script:
+
+    """
+    picard CollectInsertSizeMetrics INPUT=${dedupedSortedBamFile}  OUTPUT=${refFastaName}_insert_metrics.txt HISTOGRAM_FILE=${dedupedSortedBamFile}_insert_size_histogram.pdf
     """
 }
 
