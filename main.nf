@@ -89,6 +89,64 @@ process picardCreateSequenceDictionary {
 }
 
 
+
+#==============================================
+CollectAlignmentSummaryMetrics
+#==============================================
+*/
+
+process CollectAlignmentSummaryMetrics {
+    publishDir params.resultsDir, mode: params.saveMode
+    container "quay.io/biocontainers/picard:2.23.4--0"
+
+    when:
+    params.collectAlignmentSummaryMetrics
+
+    input:
+    path refFasta from ch_refFasta
+
+    output:
+    file "*.dict" into ch_out_collectAlignmentSummaryMetrics
+
+
+    script:
+    refFastaName = refFasta.toString().split("\\.")[0]
+
+    """
+    picard CollectAlignmentSummaryMetrics R=${refFasta} I=${}  OUTPUT=${refFastaName}.dict
+    """
+}
+
+#==============================================
+CollectInsertSizeMetrics
+#==============================================
+*/
+
+process CollectInsertSizeMetrics {
+    publishDir params.resultsDir, mode: params.saveMode
+    container "quay.io/biocontainers/picard:2.23.4--0"
+
+    when:
+    params.createSequenceDictionary
+
+    input:
+    path refFasta from ch_refFasta
+
+    output:
+    file "*.dict" into ch_out_picardCreateSequenceDictionary
+
+
+    script:
+    refFastaName = refFasta.toString().split("\\.")[0]
+
+    """
+    picard CreateSequenceDictionary REFERENCE=${refFasta}  OUTPUT=${refFastaName}.dict
+    """
+}
+
+
+
+
 /*
 #==============================================
 # extra
